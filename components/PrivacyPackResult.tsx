@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { PRIVACY_PACK_FONT_FAMILY } from "@/lib/utils";
 
 interface PrivacyPackResultProps {
     pack: Array<{
@@ -8,12 +9,58 @@ interface PrivacyPackResultProps {
         order: number;
         mainstream_app_name: string;
         mainstream_app_id: string;
-        private_alternative_name: string;
-        private_alternative_id: string;
+        private_alternatives: Array<{
+            id: string;
+            name: string;
+        }>;
     }>;
 }
 
 const PrivacyPackResult: React.FC<PrivacyPackResultProps> = ({ pack }) => {
+    const layout =
+        pack.length <= 12
+            ? {
+                  gridTop: "200px",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  columnGap: "110px",
+                  rowGap: "56px",
+                  cardClass: "h-[270px] w-[380px] pt-6",
+                  logoClass: "h-[150px] w-[150px]",
+                  textClass: "max-w-[150px] text-[28px]",
+                  multiTextClass: "max-w-[190px] text-[22px]",
+                  arrowClass: "-mt-20",
+                  arrowSize: 42,
+              }
+            : pack.length <= 20
+              ? {
+                    gridTop: "200px",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    columnGap: "72px",
+                    rowGap: "76px",
+                    cardClass: "h-[190px] w-[290px] pt-6",
+                    logoClass: "h-[120px] w-[120px]",
+                    textClass: "max-w-[120px] text-[25px]",
+                    multiTextClass: "max-w-[150px] text-[18px]",
+                    arrowClass: "-mt-12",
+                    arrowSize: 32,
+                }
+              : {
+                    gridTop: "170px",
+                    gridTemplateColumns: "repeat(5, 1fr)",
+                    columnGap: "42px",
+                    rowGap: "32px",
+                    cardClass: "h-[150px] w-[240px] pt-4",
+                    logoClass: "h-[84px] w-[84px]",
+                    textClass: "max-w-[86px] text-[18px]",
+                    multiTextClass: "max-w-[96px] text-[13px]",
+                    arrowClass: "-mt-11",
+                    arrowSize: 26,
+                };
+
+    const getAlternativeLabel = (
+        alternatives: Array<{ id: string; name: string }>,
+    ) => alternatives.map((alternative) => alternative.name).join(" + ");
+
     return (
         <div
             style={{
@@ -24,7 +71,7 @@ const PrivacyPackResult: React.FC<PrivacyPackResultProps> = ({ pack }) => {
                 position: "relative",
                 boxSizing: "border-box",
                 overflow: "hidden",
-                fontFamily: "monospace",
+                fontFamily: PRIVACY_PACK_FONT_FAMILY,
             }}
             id="privacy-pack-result-to-capture"
         >
@@ -68,7 +115,6 @@ const PrivacyPackResult: React.FC<PrivacyPackResultProps> = ({ pack }) => {
                         height={0}
                         sizes="100vw"
                         className="h-auto w-full"
-                        priority
                     />
                 </div>
             </div>
@@ -76,27 +122,27 @@ const PrivacyPackResult: React.FC<PrivacyPackResultProps> = ({ pack }) => {
             <div
                 style={{
                     position: "absolute",
-                    top: "200px",
+                    top: layout.gridTop,
                     left: "48px",
                     right: "48px",
                     display: "grid",
-                    gridTemplateColumns:
-                        pack.length <= 12 ? "repeat(3, 1fr)" : "repeat(4, 1fr)",
-                    columnGap: pack.length <= 12 ? "110px" : "72px",
-                    rowGap: pack.length <= 12 ? "56px" : "76px",
+                    gridTemplateColumns: layout.gridTemplateColumns,
+                    columnGap: layout.columnGap,
+                    rowGap: layout.rowGap,
                     justifyItems: "center",
                 }}
             >
                 {pack.map((item) => {
+                    const alternatives = item.private_alternatives;
+                    const hasMultipleAlternatives = alternatives.length > 1;
+
                     return (
                         <div
                             key={item.category}
-                            className={`${pack.length <= 12 ? "h-[270px] w-[380px]" : "h-[190px] w-[290px]"} group relative flex flex-row items-center justify-between rounded-md pt-6 transition`}
+                            className={`${layout.cardClass} group relative flex flex-row items-center justify-between rounded-md transition`}
                         >
                             <div className="flex h-full flex-col items-center transition outline-none">
-                                <div
-                                    className={`${pack.length <= 12 ? "h-[150px] w-[150px]" : "h-[120px] w-[120px]"}`}
-                                >
+                                <div className={layout.logoClass}>
                                     <Image
                                         src={`/app-logos/${item.mainstream_app_id}.jpg`}
                                         alt={item.mainstream_app_name}
@@ -107,38 +153,56 @@ const PrivacyPackResult: React.FC<PrivacyPackResultProps> = ({ pack }) => {
                                     />
                                 </div>
                                 <div
-                                    className={`${pack.length <= 12 ? "max-w-[150px] text-[28px]" : "max-w-[120px] text-[25px]"} mt-3 text-center leading-tight tracking-tight text-[#aeaeae]`}
+                                    className={`${layout.textClass} mt-3 text-center leading-tight break-words text-[#aeaeae]`}
                                 >
                                     {item.mainstream_app_name}
                                 </div>
                             </div>
-                            <div
-                                className={
-                                    pack.length <= 12 ? "-mt-20" : "-mt-12"
-                                }
-                            >
+                            <div className={layout.arrowClass}>
                                 <ArrowRight
-                                    size={pack.length <= 12 ? 42 : 32}
+                                    size={layout.arrowSize}
                                     className="text-[#e6e6e6]"
                                 />
                             </div>
                             <div className="flex h-full flex-col items-center transition outline-none">
-                                <div
-                                    className={`${pack.length <= 12 ? "h-[150px] w-[150px]" : "h-[120px] w-[120px]"}`}
-                                >
-                                    <Image
-                                        src={`/app-logos/${item.private_alternative_id}.jpg`}
-                                        alt={item.private_alternative_name}
-                                        width={0}
-                                        height={0}
-                                        sizes="100vw"
-                                        className="h-full w-full rounded-2xl object-cover"
-                                    />
+                                <div className={layout.logoClass}>
+                                    {hasMultipleAlternatives ? (
+                                        <div className="grid h-full w-full grid-cols-2 place-items-center gap-2">
+                                            {alternatives.map((alternative) => (
+                                                <div
+                                                    key={alternative.id}
+                                                    className="aspect-square w-full overflow-hidden rounded-xl bg-white/5"
+                                                >
+                                                    <Image
+                                                        src={`/app-logos/${alternative.id}.jpg`}
+                                                        alt={alternative.name}
+                                                        width={0}
+                                                        height={0}
+                                                        sizes="120px"
+                                                        className="h-full w-full object-contain"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <Image
+                                            src={`/app-logos/${alternatives[0].id}.jpg`}
+                                            alt={alternatives[0].name}
+                                            width={0}
+                                            height={0}
+                                            sizes="100vw"
+                                            className="h-full w-full rounded-2xl object-cover"
+                                        />
+                                    )}
                                 </div>
                                 <div
-                                    className={`${pack.length <= 12 ? "max-w-[150px] text-[28px]" : "max-w-[120px] text-[25px]"} mt-3 text-center leading-tight tracking-tight text-[#aeaeae]`}
+                                    className={`${
+                                        hasMultipleAlternatives
+                                            ? layout.multiTextClass
+                                            : layout.textClass
+                                    } mt-3 text-center leading-tight break-words text-[#aeaeae]`}
                                 >
-                                    {item.private_alternative_name}
+                                    {getAlternativeLabel(alternatives)}
                                 </div>
                             </div>
                         </div>
